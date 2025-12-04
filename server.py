@@ -96,18 +96,15 @@ def speak(text):
 app = Flask(__name__)
 CORS(app)
 
-
 @app.route("/")
 def home():
     return jsonify({"status": "Malayalam Voice Assistant API Running"})
-
 
 @app.route("/speak")
 def api_speak():
     text = request.args.get("text", "")
     speak(text)
     return jsonify({"spoken": text})
-
 
 @app.route("/command")
 def api_command():
@@ -128,13 +125,11 @@ def api_command():
 
     return jsonify({"command": text})
 
-
 @app.route("/listen")
 def api_listen():
     path = listen_filtered()
     text = recognize_speech(path)
     return jsonify({"text": text})
-
 
 @app.route("/wake")
 def api_wake():
@@ -146,7 +141,9 @@ def api_wake():
 """)
     return jsonify({"status": "Wake response sent"})
 
-
-# Run Flask Server
+# -------------------------------------------------------------------
+# RENDER DEPLOY CONFIG (Do not change)
+# -------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
