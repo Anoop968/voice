@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>മലയാളം വോയ്‌സ് അസിസ്റ്റൻ്റ്</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #020b1b;
+      font-family: 'Segoe UI', sans-serif;
+      color: #cfe8ff;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 32px;
+      letter-spacing: 2px;
+      color: #5ecbff;
+      text-shadow: 0 0 10px #008cff;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: auto;
+      margin-top: 40px;
+      padding: 20px;
+      border: 1px solid #0b3d91;
+      border-radius: 12px;
+      background: rgba(0, 30, 60, 0.35);
+      box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+      backdrop-filter: blur(6px);
+    }
+
+    input[type=text] {
+      width: 70%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #0e78ff;
+      background: rgba(0, 0, 0, 0.4);
+      color: #d5eeff;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 6px;
+      background: #008cff;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 8px #008cff;
+    }
+
+    button:hover {
+      background: #0aa6ff;
+      box-shadow: 0 0 15px #0aa6ff;
+    }
+
+    .panel {
+      margin-top: 25px;
+      padding: 15px;
+      border: 1px solid #0b4da8;
+      border-radius: 10px;
+      background: rgba(0, 25, 50, 0.4);
+      box-shadow: inset 0 0 15px rgba(0, 150, 255, 0.25);
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      color: #9ed8ff;
+      overflow: auto;
+    }
+
+    .btn-row {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .neon-ring {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 4px solid #00c3ff;
+      margin: auto;
+      margin-top: 40px;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 25px #00c3ff;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 5px #00c3ff; }
+      50% { box-shadow: 0 0 35px #00c3ff; }
+      100% { box-shadow: 0 0 5px #00c3ff; }
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Malayalam JARVIS Voice Assistant ⚡</h1>
+  <div class="neon-ring"></div>
+
+  <div class="container">
+    <h2>🗣️ Speak Text</h2>
+    <input id="textToSpeak" type="text" placeholder="ടൈപ്പ് ചെയ്യൂ, ഞാൻ സംസാരിക്കും..." />
+    <button id="btnSpeak">Speak</button>
+    <button id="btnWake">Wake</button>
+
+    <div class="panel">
+      <h3>🎧 Listen / Commands</h3>
+      <div class="btn-row">
+        <button id="btnListen">Listen</button>
+        <button id="btnLightOn">Light On</button>
+        <button id="btnLightOff">Light Off</button>
+        <button id="btnStop">Stop</button>
+      </div>
+      <h4>Recognized Text:</h4>
+      <pre id="recognized">(none)</pre>
+    </div>
+
+    <div class="panel">
+      <h3>📡 System Logs</h3>
+      <pre id="log">Ready...</pre>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    function log(msg){ $('log').textContent = msg + "\n" + $('log').textContent; }
+
+    function api(path){ return fetch('http://127.0.0.1:5000' + path).then(r=>r.json()); }
+
+    $('btnSpeak').onclick = async () => {
+      const t = $('textToSpeak').value;
+      if(!t) return alert('Enter text');
+      log('Speaking: ' + t);
+      await api('/speak?text=' + encodeURIComponent(t));
+    };
+
+    $('btnWake').onclick = async () => { log('Wake'); await api('/wake'); };
+
+    $('btnListen').onclick = async () => {
+      log('Listening...');
+      $('recognized').textContent = '(listening...)';
+      const r = await api('/listen');
+      $('recognized').textContent = r.text;
+    };
+
+    $('btnLightOn').onclick = () => api('/command?text=ലൈറ്റ് ഓൺ');
+    $('btnLightOff').onclick = () => api('/command?text=ലൈറ്റ് ഓഫ്');
+    $('btnStop').onclick = () => api('/command?text=നിർത്തൂ');
+  </script>
+</body>
+</html>
